@@ -1,16 +1,14 @@
 import streamlit as st
-from anytree import Node, RenderTree
 from streamlit_echarts import st_echarts
 
 
 st.button("Inserir")
 st.button("Excluir")
 
-root = Node("3")
-node1 = Node("1", parent=root)
-node2 = Node("2", parent=root)
-node3 = Node("4", parent=node2)
-node4 = Node("5", parent=node3)
+main_tree = {
+    'name': 'Arvore Avl',
+    'children': [{'name': '0'}]
+}
 
 option = {
     "tooltip": {"trigger": "item", "triggerOn": "mousemove"},
@@ -18,7 +16,7 @@ option = {
         {
             "type": "tree",
             "roam": True,
-            "data": [root],
+            "data": [main_tree],
             # "top": "1%",
             # "left": "7%",
             # "bottom": "1%",
