@@ -1,9 +1,10 @@
 import streamlit as st
 from streamlit_echarts import st_echarts
+from tree import AVLNode, AVLTree
 
-
-st.button("Inserir")
-st.button("Excluir")
+insert
+insert = st.button("Inserir")
+exclude = st.button("Excluir")
 
 main_tree = {
     'name': 'Arvore Avl',
