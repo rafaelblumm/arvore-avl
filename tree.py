@@ -63,6 +63,12 @@ class AVLTree:
             else:
                 self._rotate_right(node)
 
+    def _get_balance(self, node):
+        if node is None:
+            return 0
+        else:
+            return self._get_height(node.left) - self._get_height(node.right)
+
     def _rotate_left(self, node):
         new_root = node.right
         node.right = new_root.left
