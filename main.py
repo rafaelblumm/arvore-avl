@@ -2,9 +2,19 @@ import streamlit as st
 from streamlit_echarts import st_echarts
 from tree import AVLNode, AVLTree
 
-insert
+insert_input = st.number_input("Valor para Inserir", step=1)
 insert = st.button("Inserir")
-exclude = st.button("Excluir")
+delete_input = st.number_input("Valor para Excluir", step=1)
+delete = st.button("Excluir")
+
+tree = AVLTree()
+
+if insert:
+    tree.insert(insert_input)
+if delete:
+    tree.remove(delete_input)
+
+print(tree)
 
 main_tree = {
     'name': 'Arvore Avl',
@@ -18,10 +28,6 @@ option = {
             "type": "tree",
             "roam": True,
             "data": [main_tree],
-            # "top": "1%",
-            # "left": "7%",
-            # "bottom": "1%",
-            # "right": "20%",
             "symbolSize": 10,
             "initialTreeDepth": 3,
             "label": {
