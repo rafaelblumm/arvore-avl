@@ -165,3 +165,30 @@ class AVLTree:
             return []
 
         return self._in_order_traversal(node.left) + [node.data] + self._in_order_traversal(node.right)
+
+    def in_order(tree):
+        def in_order_node(node):
+            if node is not None:
+                return in_order_node(node.left) + [node.data] + in_order_node(node.right)
+            else:
+                return []
+
+        return in_order_node(tree.root)
+
+    def pre_order(tree):
+        def pre_order_node(node):
+            if node is not None:
+                return [node.data] + pre_order_node(node.left) + pre_order_node(node.right)
+            else:
+                return []
+
+        return pre_order_node(tree.root)
+
+    def post_order(tree):
+        def post_order_node(node):
+            if node is not None:
+                return post_order_node(node.left) + post_order_node(node.right) + [node.data]
+            else:
+                return []
+
+        return post_order_node(tree.root)
