@@ -20,7 +20,19 @@ class AVLTree:
 
         self._insert(self.root, data)
 
+    def _check_value_in_subtree(self, node, data):
+        if node is None:
+            return False
+        elif data == node.data:
+            return True
+        elif data < node.data:
+            return self._check_value_in_subtree(node.left, data)
+        else:
+            return self._check_value_in_subtree(node.right, data)
+
     def _insert(self, node, data):
+        if self._check_value_in_subtree(node, data):
+            return
         if data < node.data:
             if node.left is None:
                 node.left = AVLNode(data)
