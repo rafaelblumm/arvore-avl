@@ -7,14 +7,16 @@ insert = st.button("Inserir")
 delete_input = st.number_input("Valor para Excluir", step=1)
 delete = st.button("Excluir")
 
-tree = AVLTree()
+
+if 'tree' not in st.session_state:
+    st.session_state['tree'] = AVLTree()
 
 if insert:
-    tree.insert(insert_input)
+    st.session_state.tree.insert(insert_input)
 if delete:
-    tree.remove(delete_input)
+    st.session_state.tree.remove(delete_input)
 
-print(tree)
+print(st.session_state.tree)
 
 main_tree = {
     'name': 'Arvore Avl',
