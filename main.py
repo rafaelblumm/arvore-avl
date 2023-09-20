@@ -1,6 +1,7 @@
 import streamlit as st
 from streamlit_echarts import st_echarts
 from tree import AVLTree
+from util import avl_tree_to_dict
 
 if 'tree' not in st.session_state:
     st.session_state['tree'] = AVLTree()
@@ -27,47 +28,44 @@ if delete:
     st.session_state.tree.remove(delete_input)
     st.experimental_rerun()
 
-
 print(st.session_state.tree)
 print(f'Root: {st.session_state.tree.root}')
 
-main_tree = {
-    'name': 'Arvore Avl',
-    'children': [{'name': '0'}]
-}
-
-option = {
-    "tooltip": {"trigger": "item", "triggerOn": "mousemove"},
-    "series": [
-        {
-            "type": "tree",
-            "roam": True,
-            "data": [main_tree],
-            "symbolSize": 10,
-            "initialTreeDepth": 3,
-            "label": {
-                "position": "top",
-                "verticalAlign": "middle",
-                "align": "center",
-                "fontSize": 14,
-                "distance": 10,
-                "backgroundColor": "#ffffffb0",
-                "padding": 5,
-                "borderRadius": 5
-            },
-            "leaves": {
+if st.session_state.tree.root is not None:
+    tree_data = avl_tree_to_dict(st.session_state.tree.root)
+    option = {
+        "tooltip": {"trigger": "item", "triggerOn": "mousemove"},
+        "series": [
+            {
+                "type": "tree",
+                "roam": True,
+                "data": [tree_data],
+                "symbolSize": 10,
+                "initialTreeDepth": 3,
                 "label": {
-                    "position": "right",
+                    "position": "top",
                     "verticalAlign": "middle",
-                    "align": "left",
-                }
-            },
-            "emphasis": {"focus": "descendant"},
-            "expandAndCollapse": True,
-            "animationDuration": 550,
-            "animationDurationUpdate": 750,
-        }
-    ],
-}
-st_echarts(option, height="700px")
-
+                    "align": "center",
+                    "fontSize": 14,
+                    "distance": 10,
+                    "backgroundColor": "#ffffffb0",
+                    "padding": 5,
+                    "borderRadius": 5
+                },
+                "leaves": {
+                    "label": {
+                        "position": "right",
+                        "verticalAlign": "middle",
+                        "align": "left",
+                    }
+                },
+                "emphasis": {"focus": "descendant"},
+                "expandAndCollapse": True,
+                "animationDuration": 550,
+                "animationDurationUpdate": 750,
+            }
+        ],
+    }
+    st_echarts(option, height="700px")
+else:
+    st.warning("Insira dados na árvore!")
