@@ -21,11 +21,16 @@ with col3:
     search = st.button("Buscar")
     st.error(f'Caminhamento em pós-ordem: {st.session_state.tree.post_order()}')
 
+clear = st.button("Limpar")
+
 if insert:
     st.session_state.tree.insert(insert_input)
     st.experimental_rerun()
 if delete:
     st.session_state.tree.remove(delete_input)
+    st.experimental_rerun()
+if clear:
+    st.session_state.tree = AVLTree()
     st.experimental_rerun()
 
 print(st.session_state.tree)
