@@ -3,10 +3,10 @@ def avl_tree_to_dict(node):
         return None
 
     children = []
-    if node.left:
-        children.append(avl_tree_to_dict(node.left))
     if node.right:
         children.append(avl_tree_to_dict(node.right))
+    if node.left:
+        children.append(avl_tree_to_dict(node.left))
 
     return {
         "name": str(node.data),

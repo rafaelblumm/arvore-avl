@@ -11,15 +11,15 @@ col1, col2, col3 = st.columns(3)
 with col1:
     insert_input = st.number_input("Valor para Inserir", step=1)
     insert = st.button("Inserir")
-    st.success(f'Encaminhamento em pré-ordem: {st.session_state.tree.pre_order()}')
+    st.success(f'Caminhamento em pré-ordem: {st.session_state.tree.pre_order()}')
 with col2:
     delete_input = st.number_input("Valor para Excluir", step=1)
     delete = st.button("Excluir")
-    st.warning(f'Encaminhamento em ordem: {st.session_state.tree.in_order()}')
+    st.warning(f'Caminhamento em ordem: {st.session_state.tree.in_order()}')
 with col3:
     search_input = st.number_input("Valor para Buscar", step=1)
     search = st.button("Buscar")
-    st.error(f'Encaminhamento pós-ordem: {st.session_state.tree.post_order()}')
+    st.error(f'Caminhamento em pós-ordem: {st.session_state.tree.post_order()}')
 
 if insert:
     st.session_state.tree.insert(insert_input)
@@ -41,7 +41,7 @@ if st.session_state.tree.root is not None:
                 "roam": True,
                 "data": [tree_data],
                 "symbolSize": 10,
-                "initialTreeDepth": 3,
+                "initialTreeDepth": 999,
                 "label": {
                     "position": "top",
                     "verticalAlign": "middle",
