@@ -30,6 +30,8 @@ class AVLTree:
         Insere um valor na árvore.
         :param value: Valor a ser inserido.
         """
+        if self._check_value_in_subtree(self.root, value):
+            return
         self.root = self._insert(self.root, value)
 
     def _insert(self, node: AVLNode, value: int) -> AVLNode:
