@@ -3,9 +3,11 @@ from streamlit_echarts import st_echarts
 from tree import AVLTree
 from util import avl_tree_to_dict
 
+# Inicializa árvore
 if 'tree' not in st.session_state:
     st.session_state['tree'] = AVLTree()
 
+# Configura elementos da interface gráfica
 st.write("Operações")
 col1, col2, col3 = st.columns(3)
 with col1:
@@ -20,9 +22,9 @@ with col3:
     search_input = st.number_input("Valor para Buscar", step=1)
     search = st.button("Buscar")
     st.error(f'Caminhamento em pós-ordem: {st.session_state.tree.post_order()}')
-
 clear = st.button("Limpar")
 
+# Identifica eventos da interface gráfica
 if insert:
     st.session_state.tree.insert(insert_input)
     st.experimental_rerun()
@@ -33,9 +35,7 @@ if clear:
     st.session_state.tree = AVLTree()
     st.experimental_rerun()
 
-print(st.session_state.tree)
-print(f'Root: {st.session_state.tree.root}')
-
+# Atualiza árvore na interface gráfica
 if st.session_state.tree.root is not None:
     tree_data = avl_tree_to_dict(st.session_state.tree.root)
     option = {

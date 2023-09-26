@@ -1,4 +1,9 @@
 def avl_tree_to_dict(node):
+    """
+    Transforma a estrutura da árvore AVL em JSON para exibição na interface gráfica.
+    :param node: Nodo a ser formatado em JSON.
+    :return: Árvore AVL em formato JSON.
+    """
     if node is None:
         return None
 
