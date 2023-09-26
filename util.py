@@ -9,6 +9,6 @@ def avl_tree_to_dict(node):
         children.append(avl_tree_to_dict(node.left))
 
     return {
-        "name": str(node.data),
+        "name": str(node.value),
         "children": children
     }

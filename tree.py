@@ -1,131 +1,126 @@
 class AVLNode:
-    def __init__(self, data, left=None, right=None):
-        self.data = data
-        self.left = left
-        self.right = right
+    def __init__(self, value):
+        self.value = value
+        self.left = None
+        self.right = None
         self.height = 0
 
     def __repr__(self):
-        return f"{self.data} ({self.height})"
+        return f"{self.value} ({self.height})"
 
 
 class AVLTree:
     def __init__(self):
         self.root = None
 
-    def insert(self, data):
-        if self.root is None:
-            self.root = AVLNode(data)
-            return
+    def insert(self, value):
+        self.root = self._insert(self.root, value)
 
-        self._insert(self.root, data)
+    def _insert(self, node, value):
+        if node is None:
+            node = AVLNode(value)
+            return node
 
-    def _check_value_in_subtree(self, node, data):
+        if value < node.value:
+            node.left = self._insert(node.left, value)
+        elif value > node.value:
+            node.right = self._insert(node.right, value)
+
+        self._update_height(node)
+        return self._balance(node)
+
+    def _check_value_in_subtree(self, node, value):
         if node is None:
             return False
-        elif data == node.data:
+        elif value == node.value:
             return True
-        elif data < node.data:
-            return self._check_value_in_subtree(node.left, data)
+        elif value < node.value:
+            return self._check_value_in_subtree(node.left, value)
         else:
-            return self._check_value_in_subtree(node.right, data)
-
-    def _insert(self, node, data):
-        if self._check_value_in_subtree(node, data):
-            return
-        if data < node.data:
-            if node.left is None:
-                node.left = AVLNode(data)
-                self._update_height(node)
-                self._balance(node)
-                return
-            else:
-                self._insert(node.left, data)
-                return
-        else:
-            if node.right is None:
-                node.right = AVLNode(data)
-                self._update_height(node)
-                self._balance(node)
-                return
-            else:
-                self._insert(node.right, data)
-                return
+            return self._check_value_in_subtree(node.right, value)
 
     def _update_height(self, node):
         node.height = max(self._get_height(node.left), self._get_height(node.right)) + 1
 
     def _get_height(self, node):
-        if node is None:
-            return -1
-        else:
-            return node.height
+        return -1 if node is None else node.height
 
     def _balance(self, node):
         balance = self._get_balance(node)
 
         if balance > 1:
-            if self._get_balance(node.left) < 0:
-                self._rotate_left_right(node)
-            else:
-                self._rotate_left(node)
+            balance_left = self._get_balance(node.left)
+            # Rotação simples a direita
+            if balance_left > 0:
+                return self._rotate_right(node)
+            # Rotação dupla a direita
+            if balance_left < 0:
+                node.left = self._rotate_left(node.left)
+                return self._rotate_right(node)
+
         elif balance < -1:
-            if self._get_balance(node.right) > 0:
-                self._rotate_right_left(node)
-            else:
-                self._rotate_right(node)
+            right_balance = self._get_balance(node.right)
+            # Rotação simples a esquerda
+            if right_balance < 0:
+                return self._rotate_left(node)
+            # Rotação dupla a esquerda
+            if right_balance > 0:
+                node.right = self._rotate_right(node.right)
+                return self._rotate_left(node)
+
+        return node
 
     def _get_balance(self, node):
         if node is None:
             return 0
-        else:
-            return self._get_height(node.left) - self._get_height(node.right)
+        return self._get_height(node.left) - self._get_height(node.right)
 
     def _rotate_left(self, node):
-        new_root = node.right
-        node.right = new_root.left
-        new_root.left = node
-
+        # @TODO: apagar mensagem de debug
+        print("rot esq", node.value)
+        # Define variáveis auxiliares
+        pivot = node.right
+        aux = pivot.left
+        # Realiza a rotação
+        pivot.left = node
+        node.right = aux
+        # Atualiza a altura dos nodos
+        self._update_height(pivot)
         self._update_height(node)
-        self._update_height(new_root)
 
-        return new_root
+        return pivot
 
     def _rotate_right(self, node):
-        new_root = node.left
-        node.left = new_root.right
-        new_root.right = node
-
+        # @TODO: apagar mensagem de debug
+        print("rot dir", node.value)
+        # Define variáveis auxiliares
+        pivot = node.left
+        aux = pivot.right
+        # # Realiza a rotação
+        pivot.right = node
+        node.left = aux
+        # # Atualiza a altura dos nodos
         self._update_height(node)
-        self._update_height(new_root)
+        self._update_height(pivot)
+        return pivot
 
-        return new_root
-
-    def _rotate_left_right(self, node):
-        node.left = self._rotate_left(node.left)
-        return self._rotate_right(node)
-
-    def _rotate_right_left(self, node):
-        node.right = self._rotate_right(node.right)
-        return self._rotate_left(node)
-
-    def remove(self, data):
+    def remove(self, value):
         if self.root is None:
             return
 
-        self._remove(self.root, data)
+        self._remove(self.root, value)
 
         self._update_height(self.root)
         self._balance(self.root)
 
         return self.root
 
-    def _remove(self, node, data):
-        if data < node.data:
-            self._remove(node.left, data)
+    def _remove(self, node, value):
+        if value < node.value:
+            self._remove(node.left, value)
             return
-        elif data > node.data:
-            self._remove(node.right, data)
+        elif value > node.value:
+            self._remove(node.right, value)
             return
 
         if node.left is None:
@@ -164,12 +159,12 @@ class AVLTree:
         if node is None:
             return []
 
-        return self._in_order_traversal(node.left) + [node.data] + self._in_order_traversal(node.right)
+        return self._in_order_traversal(node.left) + [node.value] + self._in_order_traversal(node.right)
 
     def in_order(tree):
         def in_order_node(node):
             if node is not None:
-                return in_order_node(node.left) + [node.data] + in_order_node(node.right)
+                return in_order_node(node.left) + [node.value] + in_order_node(node.right)
             else:
                 return []
 
@@ -178,7 +173,7 @@ class AVLTree:
     def pre_order(tree):
         def pre_order_node(node):
             if node is not None:
-                return [node.data] + pre_order_node(node.left) + pre_order_node(node.right)
+                return [node.value] + pre_order_node(node.left) + pre_order_node(node.right)
             else:
                 return []
 
@@ -187,7 +182,7 @@ class AVLTree:
     def post_order(tree):
         def post_order_node(node):
             if node is not None:
-                return post_order_node(node.left) + post_order_node(node.right) + [node.data]
+                return post_order_node(node.left) + post_order_node(node.right) + [node.value]
             else:
                 return []
 
