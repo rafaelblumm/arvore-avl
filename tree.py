@@ -6,6 +6,7 @@ class AVLNode:
         self.value = value
         self.left = None
         self.right = None
+        self.parent = None
         self.height = 0
 
     def __repr__(self):
@@ -30,7 +31,7 @@ class AVLTree:
         Insere um valor na árvore.
         :param value: Valor a ser inserido.
         """
-        if self.search(value) is not None:
+        if self.search_node(value) is not None:
             return
         self.root = self._insert(self.root, value)
 
@@ -39,7 +40,7 @@ class AVLTree:
         Insere um valor na árvore.
         :param node: Nodo pai.
         :param value: Valor a ser inserido.
-        :return: Nodo inserido.
+        :return: Nodo pai do nodo inserido.
         """
         if node is None:
             node = AVLNode(value)
@@ -53,33 +54,42 @@ class AVLTree:
         self._update_height(node)
         return self._balance(node)
 
-    def search(self, value: int) -> AVLNode | None:
+    def search(self, value: int) -> list | None:
         """
         Procura por um nodo com determinado valor.
         :param value: Valor desejado.
-        :return: Nodo procurado.
+        :return: Caminho até o nodo procurado.
         """
         if self.root is None or value is None:
             return
         return self._search(self.root, value, [])
 
-    def _search(self, node: AVLNode, value: int, path: list) -> AVLNode | None:
+    def _search(self, node: AVLNode, value: int, path: list) -> list | None:
         """
         Procura por um nodo com determinado valor.
         :param node: Nodo a ser comparado.
         :param value: Valor desejado.
         :param path: Caminho percorrido na árvore.
-        :return: Nodo procurado.
+        :return: Caminho até o nodo procurado.
         """
         if node is None:
             return None
+
+        path.append(node)
         if value < node.value:
             return self._search(node.left, value, path)
         if value > node.value:
             return self._search(node.right, value, path)
-        # @TODO: exibir percurso até nodo
-        print(" -> ".join(path))
-        return node
+        return path
+
+    def search_node(self, value: int) -> AVLNode | None:
+        """
+        Procura por determinado nodo.
+        :param value: Valor do nodo.
+        :return: Nodo encontrado.
+        """
+        path = self.search(value)
+        return path[-1] if path is not None else None
 
     def _update_height(self, node: AVLNode) -> None:
         """
@@ -186,7 +196,7 @@ class AVLTree:
 
         self._remove(self.root, value)
         self._update_height(self.root)
-        self._balance(self.root)
+        self.root = self._balance(self.root)
         return self.root
 
     def _remove(self, node: AVLNode, value: int, parent: AVLNode = None) -> AVLNode | None:
@@ -197,7 +207,8 @@ class AVLTree:
         :param parent: Pai do nodo a ser comparado. Default=None.
         :return: Árvore com nodo removido.
         """
-        # @TODO: remover nodo com 2 filhos
+        # @TODO: remover raiz
+        # @TODO: corrigir balanceamento da árvore após remoção
         if not node:
             return
         elif value < node.value:
@@ -205,63 +216,63 @@ class AVLTree:
         elif value > node.value:
             return self._remove(node.right, value, node)
 
-        # Nodo é folha
+        # É folha
         if node.left is None and node.right is None:
-            if parent.right == node:
-                parent.right = None
-            else:
-                parent.left = None
-            node = None
-            return node
-
+            return self._remove_leaf(node, parent)
         # Nodo tem somente 1 filho a esquerda
         if node.right is None:
-            if parent.right == node:
-                parent.right = node.left
-            else:
-                parent.left = node.left
-            node = None
-            return node
-
+            return self._remove_node_has_left_child(node, parent)
         # Nodo tem somente 1 filho a direita
         if node.left is None:
-            if parent.right == node:
-                parent.right = node.right
-            else:
-                parent.left = node.right
-            node = None
-            return node
+            return self._remove_node_has_right_child(node, parent)
+        # Nodo tem 2 filhos (exclusão por cópia)
+        return self._remove_node_with_both_child(node, parent)
 
-        # if node.left is None:
-        #     new_root = node.right
-        # elif node.right is None:
-        #     new_root = node.left
-        # else:
-        #     successor = self._find_successor(node)
-        #     new_root = successor.right
-        #     successor.right = None
-        #     successor.left = node.left
-        #     node.left = None
+    def _remove_leaf(self, node: AVLNode, parent: AVLNode) -> AVLNode:
+        if parent.right == node:
+            parent.right = None
+        else:
+            parent.left = None
+        return parent
 
-        # self._update_height(new_root)
-        # self._balance(new_root)
-        #
-        # return new_root
+    def _remove_node_has_left_child(self, node: AVLNode, parent: AVLNode) -> AVLNode:
+        if parent.right == node:
+            parent.right = node.left
+        else:
+            parent.left = node.left
+        return parent
+
+    def _remove_node_has_right_child(self, node: AVLNode, parent: AVLNode) -> AVLNode:
+        if parent.right == node:
+            parent.right = node.right
+        else:
+            parent.left = node.right
+        return parent
+
+    def _remove_node_with_both_child(self, node: AVLNode, parent: AVLNode) -> AVLNode:
+        successor = self._find_successor(node)
+        successor_parent = self._find_parent(successor)
+        aux = parent.right if parent.right == node else parent.left
+        aux.value = successor.value
+        return self._remove(successor, successor.value, successor_parent)
 
     def _find_successor(self, node: AVLNode) -> AVLNode:
         """
-        Procura o sucessor do nodo a ser removido.
-        :param node: Pai do nodo a ser comparado.
+        Procura o sucessor do nodo a ser excluído por cópia.
+        :param node: Nodo a ser removido.
         :return: Sucessor do nodo.
         """
-        if node.right is None:
-            return node
+        if node.left.right is not None:
+            return node.left.right
+        return node.left
 
-        successor = node.right
-        while successor.left is not None:
-            successor = successor.left
-
-        return successor
+    def _find_parent(self, node: AVLNode) -> AVLNode:
+        """
+        Recupera o pai do nodo informado.
+        :param node: Nodo cujo pai será recuperado.
+        :return: Pai do nodo informado.
+        """
+        return self.search(node.value)[-2]
 
     def in_order(self) -> list:
         """
