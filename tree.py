@@ -196,6 +196,7 @@ class AVLTree:
 
         self._remove(self.root, value)
         self._update_height(self.root)
+        # @TODO: balancear recursivamente para cima
         self.root = self._balance(self.root)
         return self.root
 
@@ -207,8 +208,6 @@ class AVLTree:
         :param parent: Pai do nodo a ser comparado. Default=None.
         :return: Árvore com nodo removido.
         """
-        # @TODO: remover raiz
-        # @TODO: corrigir balanceamento da árvore após remoção
         if not node:
             return
         elif value < node.value:
@@ -229,6 +228,12 @@ class AVLTree:
         return self._remove_node_with_both_child(node, parent)
 
     def _remove_leaf(self, node: AVLNode, parent: AVLNode) -> AVLNode:
+        """
+        Remove folha (nodo sem filhos).
+        :param node: Nodo a ser removido.
+        :param parent: Pai do nodo a ser removido.
+        :return: Pai do nodo a ser removido.
+        """
         if parent.right == node:
             parent.right = None
         else:
@@ -236,6 +241,12 @@ class AVLTree:
         return parent
 
     def _remove_node_has_left_child(self, node: AVLNode, parent: AVLNode) -> AVLNode:
+        """
+        Remove nodo com filho a esquerda.
+        :param node: Nodo a ser removido.
+        :param parent: Pai do nodo a ser removido.
+        :return: Pai do nodo a ser removido.
+        """
         if parent.right == node:
             parent.right = node.left
         else:
@@ -243,6 +254,12 @@ class AVLTree:
         return parent
 
     def _remove_node_has_right_child(self, node: AVLNode, parent: AVLNode) -> AVLNode:
+        """
+        Remove nodo com filho a direita.
+        :param node: Nodo a ser removido.
+        :param parent: Pai do nodo a ser removido.
+        :return: Pai do nodo a ser removido.
+        """
         if parent.right == node:
             parent.right = node.right
         else:
@@ -250,10 +267,20 @@ class AVLTree:
         return parent
 
     def _remove_node_with_both_child(self, node: AVLNode, parent: AVLNode) -> AVLNode:
+        """
+        Remove nodo com dois filhos.
+        :param node: Nodo a ser removido.
+        :param parent: Pai do nodo a ser removido.
+        :return: Sub-árvore do nodo removido.
+        """
         successor = self._find_successor(node)
         successor_parent = self._find_parent(successor)
-        aux = parent.right if parent.right == node else parent.left
-        aux.value = successor.value
+        # Nodo é raíz da árvore
+        if parent is None:
+            self.root.value = successor.value
+        else:
+            aux = parent.right if parent.right == node else parent.left
+            aux.value = successor.value
         return self._remove(successor, successor.value, successor_parent)
 
     def _find_successor(self, node: AVLNode) -> AVLNode:
@@ -272,7 +299,7 @@ class AVLTree:
         :param node: Nodo cujo pai será recuperado.
         :return: Pai do nodo informado.
         """
-        return self.search(node.value)[-2]
+        return self.search(node.value)[-2] if node is not self.root else None
 
     def in_order(self) -> list:
         """
