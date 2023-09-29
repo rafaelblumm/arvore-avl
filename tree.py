@@ -35,7 +35,7 @@ class AVLTree:
             return
         self.root = self._insert(self.root, value)
 
-    def _insert(self, node: AVLNode, value: int) -> AVLNode:
+    def _insert(self, node: AVLNode, value: int, parent: AVLNode = None) -> AVLNode:
         """
         Insere um valor na árvore.
         :param node: Nodo pai.
@@ -44,12 +44,14 @@ class AVLTree:
         """
         if node is None:
             node = AVLNode(value)
+            if parent is not None:
+                node.parent = parent
             return node
 
         if value < node.value:
-            node.left = self._insert(node.left, value)
+            node.left = self._insert(node.left, value, node)
         elif value > node.value:
-            node.right = self._insert(node.right, value)
+            node.right = self._insert(node.right, value, node)
 
         self._update_height(node)
         return self._balance(node)
@@ -97,7 +99,11 @@ class AVLTree:
         :param node: Nodo a ser atualizado.
         """
         if node:
-            node.height = max(self._get_height(node.left), self._get_height(node.right)) + 1
+            new_height = max(self._get_height(node.left), self._get_height(node.right)) + 1
+            if node.height != new_height:
+                node.height = new_height
+                if node.parent is not None:
+                    self._update_height(node.parent)
 
     def _get_height(self, node: AVLNode) -> int:
         """
@@ -146,44 +152,68 @@ class AVLTree:
             return 0
         return self._get_height(node.left) - self._get_height(node.right)
 
-    def _rotate_left(self, node: AVLNode) -> AVLNode:
+    def _rotate_left(self, old_root: AVLNode) -> AVLNode:
         """
         Realiza rotação simples a esquerda.
-        :param node: Nodo a ser rotacionado.
+        :param old_root: Nodo a ser rotacionado.
         :return: Sub-árvore rotacionada a esquerda.
         """
-        # @TODO: apagar mensagem de debug
-        print("rot esq", node.value)
-        # Define variáveis auxiliares
-        pivot = node.right
-        aux = pivot.left
-        # Realiza a rotação
-        pivot.left = node
-        node.right = aux
-        # Atualiza a altura dos nodos
-        self._update_height(pivot)
-        self._update_height(node)
+        parent_node = old_root.parent
 
-        return pivot
+        new_root = old_root.right
+        old_root.right = new_root.left
 
-    def _rotate_right(self, node: AVLNode) -> AVLNode:
+        if (old_root.right):
+            old_root.right.parent = old_root
+        new_root.left = old_root
+        old_root.parent = new_root
+
+        if parent_node is None:
+            self.root = new_root
+            self.root.parent = None
+        else:
+            if parent_node.right and parent_node.right.value == old_root.value:
+                parent_node.right = new_root
+                new_root.parent = parent_node
+            elif parent_node.left and parent_node.left.value == old_root.value:
+                parent_node.left = new_root
+                new_root.parent = parent_node
+        
+        self._update_height(new_root.left)
+        self._update_height(parent_node)
+        return new_root
+
+    def _rotate_right(self, old_root: AVLNode) -> AVLNode:
         """
         Realiza rotação simples a direita.
         :param node: Nodo a ser rotacionado.
         :return: Sub-árvore rotacionada a direita.
         """
-        # @TODO: apagar mensagem de debug
-        print("rot dir", node.value)
-        # Define variáveis auxiliares
-        pivot = node.left
-        aux = pivot.right
-        # # Realiza a rotação
-        pivot.right = node
-        node.left = aux
-        # # Atualiza a altura dos nodos
-        self._update_height(node)
-        self._update_height(pivot)
-        return pivot
+        parent_node = old_root.parent
+
+        new_root = old_root.left
+        old_root.left = new_root.right
+
+        if (old_root.left):
+            old_root.left.parent = old_root
+
+        new_root.right = old_root
+        old_root.parent = new_root
+
+        if parent_node is None:
+            self.root = new_root
+            self.root.parent = None
+        else:
+            if parent_node.right and parent_node.right.value == old_root.value:
+                parent_node.right = new_root
+                new_root.parent = parent_node
+            elif parent_node.left and parent_node.left.value == old_root.value:
+                parent_node.left = new_root
+                new_root.parent = parent_node
+
+        self._update_height(new_root.right)
+        self._update_height(parent_node)
+        return new_root
 
     def remove(self, value: int) -> AVLNode | None:
         """
@@ -196,9 +226,7 @@ class AVLTree:
 
         parent_node = self._remove(self.root, value)
         self._update_height(parent_node)
-        # @TODO: balancear recursivamente para cima
-        self._update_heights(self.root)
-        return  self._balance_all(self.root)
+        return self._balance_all(self.root)
 
     def _balance_all(self, node: AVLNode):
         """
@@ -289,14 +317,13 @@ class AVLTree:
         :return: Sub-árvore do nodo removido.
         """
         successor = self._find_successor(node)
-        successor_parent = self._find_parent(successor)
         # Nodo é raíz da árvore
         if parent is None:
             self.root.value = successor.value
         else:
             aux = parent.right if parent.right == node else parent.left
             aux.value = successor.value
-        return self._remove(successor, successor.value, successor_parent)
+        return self._remove(successor, successor.value, successor.parent)
 
     def _find_successor(self, node: AVLNode) -> AVLNode:
         """
@@ -307,14 +334,6 @@ class AVLTree:
         if node.left.right is not None:
             return node.left.right
         return node.left
-
-    def _find_parent(self, node: AVLNode) -> AVLNode:
-        """
-        Recupera o pai do nodo informado.
-        :param node: Nodo cujo pai será recuperado.
-        :return: Pai do nodo informado.
-        """
-        return self.search(node.value)[-2] if node is not self.root else None
 
     def in_order(self) -> list:
         """
