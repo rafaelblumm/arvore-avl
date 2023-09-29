@@ -3,46 +3,12 @@ from streamlit_echarts import st_echarts
 from tree import AVLTree
 from util import avl_tree_to_dict, create_mock_tree
 
-# Inicializa árvore
-if 'tree' not in st.session_state:
-    st.session_state['tree'] = AVLTree()
-
-# Configura elementos da interface gráfica
-st.write("Operações")
-col1, col2, col3 = st.columns(3)
-with col1:
-    insert_input = st.number_input("Valor para Inserir", step=1)
-    insert = st.button("Inserir")
-    st.success(f'Caminhamento em pré-ordem: {st.session_state.tree.pre_order()}')
-    clear = st.button("Limpar")
-with col2:
-    delete_input = st.number_input("Valor para Excluir", step=1)
-    delete = st.button("Excluir")
-    st.warning(f'Caminhamento em ordem: {st.session_state.tree.in_order()}')
-    mock_tree = st.button('Criar árvore teste')
-with col3:
-    search_input = st.number_input("Valor para Buscar", step=1)
-    search = st.button("Buscar")
-    st.error(f'Caminhamento em pós-ordem: {st.session_state.tree.post_order()}')
-
-# Identifica eventos da interface gráfica
-if insert:
-    st.session_state.tree.insert(insert_input)
-    st.rerun()
-if delete:
-    st.session_state.tree.remove(delete_input)
-    st.rerun()
-if clear:
-    st.session_state.tree = AVLTree()
-    st.rerun()
-if mock_tree:
-    create_mock_tree()
-    st.rerun()
-
-# Atualiza árvore na interface gráfica
-if st.session_state.tree.root is not None:
-    tree_data = avl_tree_to_dict(st.session_state.tree.root)
-    option = {
+def get_tree_options():
+    """
+    Recupera as configurações do treechart do StreamLit.
+    :return: Configurações.
+    """
+    return {
         "tooltip": {"trigger": "item", "triggerOn": "mousemove"},
         "series": [
             {
@@ -75,6 +41,88 @@ if st.session_state.tree.root is not None:
             }
         ],
     }
+
+def format_node_path(path: list) -> str:
+    """
+    Formata o caminho até o nodo.
+    :param path: Caminho até o nodo.
+    :return: Caminho formatado.
+    """
+    values = []
+    for i in path:
+        values.append(str(i.value))
+    return " -> ".join(values)
+
+# Inicializa árvore
+if 'tree' not in st.session_state:
+    st.session_state['tree'] = AVLTree()
+
+# Configura página
+st.set_page_config(
+    page_title="Árvore AVL",
+    page_icon=":deciduous_tree:",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# Configura painel lateral
+with st.sidebar:
+    st.title("Operações")
+    # Inserir
+    insert_input = st.number_input("Valor para Inserir", step=1, key="insert_input")
+    insert = st.button("Inserir")
+    st.divider()
+    # Excluir
+    delete_input = st.number_input("Valor para Excluir", step=1, key="delete_input")
+    delete = st.button("Excluir")
+    st.divider()
+    # Buscar
+    search_input = st.number_input("Valor para Buscar", step=1, key="search_input")
+    search = st.button("Buscar")
+    st.divider()
+
+    st.caption("Enzo Porto & Rafael Blumm")
+
+
+# Configura painel de caminhamentos
+st.title("Árvore AVL")
+top_panel = st.container()
+col1, col2, col3 = top_panel.columns(3)
+with col1:
+    st.subheader("Caminhamentos")
+    st.info(f'Pré-ordem: {st.session_state.tree.pre_order()}')
+with col2:
+    clear = st.button("Limpar")
+    st.info(f'Em ordem: {st.session_state.tree.in_order()}')
+with col3:
+    mock_tree = st.button('Criar árvore teste')
+    st.info(f'Pós-ordem: {st.session_state.tree.post_order()}')
+
+# Atualiza árvore na interface gráfica
+if st.session_state.tree.root is not None:
+    tree_data = avl_tree_to_dict(st.session_state.tree.root)
+    option = get_tree_options()
     st_echarts(option, height="700px")
 else:
-    st.warning("Insira dados na árvore!")
+    top_panel.warning("Insira dados na árvore!")
+
+# Identifica eventos da interface gráfica
+if insert:
+    st.session_state.tree.insert(insert_input)
+    st.experimental_rerun()()
+if delete:
+    st.session_state.tree.remove(delete_input)
+    st.experimental_rerun()()
+if clear:
+    st.session_state.tree = AVLTree()
+    st.experimental_rerun()()
+if search:
+    node_path = st.session_state.tree.search(search_input)
+    if node_path is None:
+        top_panel.error("Nodo não encontrado!")
+    else:
+        top_panel.success(f'Caminho até o nodo [{search_input}]: {format_node_path(node_path)}. ' +
+                          f'Altura={node_path[-1].height}')
+if mock_tree:
+    create_mock_tree()
+    st.experimental_rerun()()
