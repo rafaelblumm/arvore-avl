@@ -194,12 +194,27 @@ class AVLTree:
         if self.root is None or self.search(value) is None:
             return
 
-        self._remove(self.root, value)
-        self._update_height(self.root)
+        parent_node = self._remove(self.root, value)
+        self._update_height(parent_node)
         # @TODO: balancear recursivamente para cima
-        self.root = self._balance(self.root)
-        return self.root
+        self._update_heights(self.root)
+        return  self._balance_all(self.root)
 
+    def _balance_all(self, node: AVLNode):
+        """
+        Balanceia todos os nós da árvore indicada.
+        :param node: Node a ser balanceado.
+        :return: Node balanceado.
+        """
+        if node is None:
+            return None
+
+        node.left = self._balance_all(node.left)
+        node.right = self._balance_all(node.right)
+
+        node = self._balance(node)
+        return node
+    
     def _remove(self, node: AVLNode, value: int, parent: AVLNode = None) -> AVLNode | None:
         """
         Remove nodo com determinado valor da árvore AVL.

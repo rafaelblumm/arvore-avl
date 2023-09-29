@@ -1,7 +1,7 @@
 import streamlit as st
 from streamlit_echarts import st_echarts
 from tree import AVLTree
-from util import avl_tree_to_dict
+from util import avl_tree_to_dict, create_mock_tree
 
 # Inicializa árvore
 if 'tree' not in st.session_state:
@@ -14,26 +14,30 @@ with col1:
     insert_input = st.number_input("Valor para Inserir", step=1)
     insert = st.button("Inserir")
     st.success(f'Caminhamento em pré-ordem: {st.session_state.tree.pre_order()}')
+    clear = st.button("Limpar")
 with col2:
     delete_input = st.number_input("Valor para Excluir", step=1)
     delete = st.button("Excluir")
     st.warning(f'Caminhamento em ordem: {st.session_state.tree.in_order()}')
+    mock_tree = st.button('Criar árvore teste')
 with col3:
     search_input = st.number_input("Valor para Buscar", step=1)
     search = st.button("Buscar")
     st.error(f'Caminhamento em pós-ordem: {st.session_state.tree.post_order()}')
-clear = st.button("Limpar")
 
 # Identifica eventos da interface gráfica
 if insert:
     st.session_state.tree.insert(insert_input)
-    st.experimental_rerun()
+    st.rerun()
 if delete:
     st.session_state.tree.remove(delete_input)
-    st.experimental_rerun()
+    st.rerun()
 if clear:
     st.session_state.tree = AVLTree()
-    st.experimental_rerun()
+    st.rerun()
+if mock_tree:
+    create_mock_tree()
+    st.rerun()
 
 # Atualiza árvore na interface gráfica
 if st.session_state.tree.root is not None:
