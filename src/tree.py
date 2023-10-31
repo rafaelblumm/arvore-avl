@@ -1,8 +1,12 @@
+from person import Person
+
+
 class AVLNode:
     """
     Classe que representa um nodo em uma árvore AVL.
     """
-    def __init__(self, value: int):
+    def __init__(self, key: int, value: Person):
+        self.key = key
         self.value = value
         self.left = None
         self.right = None
@@ -10,7 +14,7 @@ class AVLNode:
         self.height = 0
 
     def __repr__(self):
-        return f"{self.value} ({self.height})"
+        return f"{self.key} ({self.height})"
 
 
 class AVLTree:
@@ -26,51 +30,51 @@ class AVLTree:
             return "[]"
         return f"[{self.in_order()}]"
 
-    def insert(self, value: int) -> None:
+    def insert(self, key: int, value: Person) -> None:
         """
         Insere um valor na árvore.
-        :param value: Valor a ser inserido.
+        :param key: Chave do valor a ser inserido.
         """
-        if self.search_node(value) is not None:
+        if self.search_node(key) is not None:
             return
-        self.root = self._insert(self.root, value)
+        self.root = self._insert(self.root, key, value)
 
-    def _insert(self, node: AVLNode, value: int, parent: AVLNode = None) -> AVLNode:
+    def _insert(self, node: AVLNode, key: int, value: Person, parent: AVLNode = None) -> AVLNode:
         """
         Insere um valor na árvore.
         :param node: Nodo pai.
-        :param value: Valor a ser inserido.
+        :param key: Valor a ser inserido.
         :return: Nodo pai do nodo inserido.
         """
         if node is None:
-            node = AVLNode(value)
+            node = AVLNode(key, value)
             if parent is not None:
                 node.parent = parent
             return node
 
-        if value < node.value:
-            node.left = self._insert(node.left, value, node)
-        elif value > node.value:
-            node.right = self._insert(node.right, value, node)
+        if key < node.key:
+            node.left = self._insert(node.left, key, value, node)
+        elif key > node.key:
+            node.right = self._insert(node.right, key, value, node)
 
         self._update_height(node)
         return self._balance(node)
 
-    def search(self, value: int) -> list | None:
+    def search(self, key: int) -> list | None:
         """
         Procura por um nodo com determinado valor.
-        :param value: Valor desejado.
+        :param key: Chave do valor desejado.
         :return: Caminho até o nodo procurado.
         """
-        if self.root is None or value is None:
+        if self.root is None or key is None:
             return
-        return self._search(self.root, value, [])
+        return self._search(self.root, key, [])
 
-    def _search(self, node: AVLNode, value: int, path: list) -> list | None:
+    def _search(self, node: AVLNode, key: int, path: list) -> list | None:
         """
         Procura por um nodo com determinado valor.
         :param node: Nodo a ser comparado.
-        :param value: Valor desejado.
+        :param key: Chave do valor desejado.
         :param path: Caminho percorrido na árvore.
         :return: Caminho até o nodo procurado.
         """
@@ -78,19 +82,19 @@ class AVLTree:
             return None
 
         path.append(node)
-        if value < node.value:
-            return self._search(node.left, value, path)
-        if value > node.value:
-            return self._search(node.right, value, path)
+        if key < node.key:
+            return self._search(node.left, key, path)
+        if key > node.key:
+            return self._search(node.right, key, path)
         return path
 
-    def search_node(self, value: int) -> AVLNode | None:
+    def search_node(self, key: int) -> AVLNode | None:
         """
         Procura por determinado nodo.
-        :param value: Valor do nodo.
+        :param key: Chave do nodo.
         :return: Nodo encontrado.
         """
-        path = self.search(value)
+        path = self.search(key)
         return path[-1] if path is not None else None
 
     def _update_height(self, node: AVLNode) -> None:
@@ -172,10 +176,10 @@ class AVLTree:
             self.root = new_root
             self.root.parent = None
         else:
-            if parent_node.right and parent_node.right.value == old_root.value:
+            if parent_node.right and parent_node.right.key == old_root.key:
                 parent_node.right = new_root
                 new_root.parent = parent_node
-            elif parent_node.left and parent_node.left.value == old_root.value:
+            elif parent_node.left and parent_node.left.key == old_root.key:
                 parent_node.left = new_root
                 new_root.parent = parent_node
         
@@ -204,10 +208,10 @@ class AVLTree:
             self.root = new_root
             self.root.parent = None
         else:
-            if parent_node.right and parent_node.right.value == old_root.value:
+            if parent_node.right and parent_node.right.key == old_root.key:
                 parent_node.right = new_root
                 new_root.parent = parent_node
-            elif parent_node.left and parent_node.left.value == old_root.value:
+            elif parent_node.left and parent_node.left.key == old_root.key:
                 parent_node.left = new_root
                 new_root.parent = parent_node
 
@@ -215,16 +219,16 @@ class AVLTree:
         self._update_height(parent_node)
         return new_root
 
-    def remove(self, value: int) -> AVLNode | None:
+    def remove(self, key: int) -> AVLNode | None:
         """
         Remove nodo com determinado valor da árvore AVL.
-        :param value: Valor do nodo a ser removido.
+        :param key: Chave do nodo a ser removido.
         :return: Árvore com nodo removido.
         """
-        if self.root is None or self.search(value) is None:
+        if self.root is None or self.search(key) is None:
             return
 
-        parent_node = self._remove(self.root, value)
+        parent_node = self._remove(self.root, key)
         self._update_height(parent_node)
         return self._balance_all(self.root)
 
@@ -243,20 +247,20 @@ class AVLTree:
         node = self._balance(node)
         return node
     
-    def _remove(self, node: AVLNode, value: int, parent: AVLNode = None) -> AVLNode | None:
+    def _remove(self, node: AVLNode, key: int, parent: AVLNode = None) -> AVLNode | None:
         """
         Remove nodo com determinado valor da árvore AVL.
         :param node: Nodo a ser comparado.
-        :param value: Valor do nodo a ser removido.
+        :param key: Chave do nodo a ser removido.
         :param parent: Pai do nodo a ser comparado. Default=None.
         :return: Árvore com nodo removido.
         """
         if not node:
             return
-        elif value < node.value:
-            return self._remove(node.left, value, node)
-        elif value > node.value:
-            return self._remove(node.right, value, node)
+        elif key < node.key:
+            return self._remove(node.left, key, node)
+        elif key > node.key:
+            return self._remove(node.right, key, node)
 
         # É folha
         if node.left is None and node.right is None:
@@ -319,11 +323,11 @@ class AVLTree:
         successor = self._find_successor(node)
         # Nodo é raíz da árvore
         if parent is None:
-            self.root.value = successor.value
+            self.root.key = successor.key
         else:
             aux = parent.right if parent.right == node else parent.left
-            aux.value = successor.value
-        return self._remove(successor, successor.value, successor.parent)
+            aux.key = successor.key
+        return self._remove(successor, successor.key, successor.parent)
 
     def _find_successor(self, node: AVLNode) -> AVLNode:
         """
@@ -342,7 +346,7 @@ class AVLTree:
         """
         def in_order_node(node):
             if node is not None:
-                return in_order_node(node.left) + [node.value] + in_order_node(node.right)
+                return in_order_node(node.left) + [node.key] + in_order_node(node.right)
             return []
 
         return in_order_node(self.root)
@@ -354,7 +358,7 @@ class AVLTree:
         """
         def pre_order_node(node):
             if node is not None:
-                return [node.value] + pre_order_node(node.left) + pre_order_node(node.right)
+                return [node.key] + pre_order_node(node.left) + pre_order_node(node.right)
             return []
 
         return pre_order_node(self.root)
@@ -366,7 +370,7 @@ class AVLTree:
         """
         def post_order_node(node):
             if node is not None:
-                return post_order_node(node.left) + post_order_node(node.right) + [node.value]
+                return post_order_node(node.left) + post_order_node(node.right) + [node.key]
             return []
 
         return post_order_node(self.root)

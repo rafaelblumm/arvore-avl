@@ -1,22 +1,32 @@
+import pathlib
+from person import Person
+from tree import AVLTree
 import streamlit as st
+import pandas as pd
 
 
-def avl_tree_to_dict(node):
+RESOURCES = pathlib.Path(__file__).parent.parent / "resources"
+DATABASE_FILE = "pessoas.csv"
+CSV_SEPARATOR = ';'
+TREE_KEYS = ['tree_cpf', 'tree_name', 'tree_birth']
+
+def check_if_trees_initialized() -> bool:
     """
-    Transforma a estrutura da árvore AVL em JSON para exibição na interface gráfica.
-    :param node: Nodo a ser formatado em JSON.
-    :return: Árvore AVL em formato JSON.
+    Indica se árvores AVL da sessão foram inicializadas com os dados.
+    :return True se árvores estão inicializadas.
     """
-    if node is None:
-        return None
+    for i in TREE_KEYS:
+        if i not in st.session_state:
+            return False
+    return True
 
-    children = []
-    if node.right:
-        children.append(avl_tree_to_dict(node.right))
-    if node.left:
-        children.append(avl_tree_to_dict(node.left))
-
-    return {
-        "name": str(node.value),
-        "children": children
-    }
+def load_trees() -> None:
+    """
+    Carrega árvores AVL da sessão.
+    """
+    for k in TREE_KEYS:
+        st.session_state[k] = AVLTree()
+    for k, v in pd.read_csv(RESOURCES / DATABASE_FILE, sep=CSV_SEPARATOR).iterrows():
+        person = Person(v.CPF, v.RG, v.Nome, v.Nascimento, v.Cidade)
+        for i in TREE_KEYS:
+            st.session_state[i].insert(person.cpf, person)
