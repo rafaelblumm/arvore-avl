@@ -25,9 +25,23 @@ class Person:
         :return dict
         """
         return {
-            'CPF': [self.cpf],
-            'RG': [self.rg],
+            'CPF': [self._format_cpf()],
+            'RG': [self._format_rg()],
             'Nome': [self.name],
             'Nascimento': [self.birth],
             'Cidade:': [self.city]
         }
+    
+    def _format_cpf(self) -> str:
+        """
+        Formata CPF no formato '999.999.999-99'.
+        """
+        s = str(self.cpf).zfill(11)
+        return f"{s[0:3]}.{s[3:6]}.{s[6:9]}-{s[9:]}"
+    
+    def _format_rg(self) -> str:
+        """
+        Formata RG no formato '99.999.999-9'.
+        """
+        s = str(self.cpf).zfill(9)
+        return f"{s[0:2]}.{s[2:5]}.{s[5:8]}-{s[8:]}"

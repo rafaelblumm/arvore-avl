@@ -1,10 +1,12 @@
 import util
 import pandas as pd
 import streamlit as st
-from streamlit_echarts import st_echarts
 
 
-SEARCH_OPTIONS = 'CPF', 'Nome', 'Nascimento'
+CPF = 0
+NAME = 1
+BIRTH = 2
+SEARCH_OPTIONS = ['CPF', 'Nome', 'Nascimento']
 RESULT_COLUMNS = ['CPF', 'RG', 'Nome', 'Nascimento', 'Cidade']
 
 # Tabela de resultados
@@ -12,25 +14,37 @@ def show_results():
     """
     Exibe resultados da busca.
     """
-    if option == "CPF":
-        if not cpf:
-            st.error('É necessário informar um CPF para a busca!')
-            return
-        result = trees[option].search_node(cpf)
-        if not result:
-            st.error(f"CPF '{cpf}' não encontrado")
-        else:
-            st.table(pd.DataFrame(data=result.value.to_dict()))
-    else:
+    if option == SEARCH_OPTIONS[BIRTH]:
         st.error(f"Busca por {option.lower()} ainda não foi implementada!")
+        return
+
+    if search_value is None:
+        st.error('É necessário informar um valor para a busca!')
+        return
+    
+    result = trees[option].search_node(search_value)
+    if result is None:
+        st.error('Cadastro não encontrado!')
+        return
+
+    if not result.value:
+        if option == SEARCH_OPTIONS[CPF]:
+            st.error(f"CPF '{search_value}' não encontrado")
+        if option == SEARCH_OPTIONS[NAME]:
+            st.error(f"Nome '{search_value}' não encontrado")
+    else:
+        dataframes = []
+        for x in result.value:
+            dataframes.append(pd.DataFrame(data=x.to_dict()))
+        st.table(pd.concat(dataframes))
 
 # Carrega árvores
 if not util.check_if_trees_initialized():
     util.load_trees()
 trees = {
-    SEARCH_OPTIONS[0]: st.session_state.tree_cpf,
-    SEARCH_OPTIONS[1]: st.session_state.tree_name,
-    SEARCH_OPTIONS[2]: st.session_state.tree_birth
+    SEARCH_OPTIONS[CPF]: st.session_state.tree_cpf,
+    SEARCH_OPTIONS[NAME]: st.session_state.tree_name,
+    SEARCH_OPTIONS[BIRTH]: st.session_state.tree_birth
 }
 
 # Configura página
@@ -43,23 +57,28 @@ st.set_page_config(
 
 # Configura painel lateral
 with st.sidebar:
-    st.title("Buscar")
+    st.title("ÁRVORE AVL - Busca")
     option = st.selectbox('Tipo de busca', SEARCH_OPTIONS)
 
-    if option == 'Nome':
-        name = st.text_input('Nome', '')
-    elif option == 'Nascimento':
+    search_value = None
+    if option == SEARCH_OPTIONS[NAME]:
+        search_value = st.text_input('Nome', '')
+    elif option == SEARCH_OPTIONS[BIRTH]:
         date_start = st.date_input("Limite inferior", format="DD/MM/YYYY", value=None)
         date_end = st.date_input("Limite superior", format="DD/MM/YYYY", value="today")
     else:
-        cpf = st.number_input('CPF', min_value=1, max_value=1_000_000_000_00, value=None)
+        search_value = st.number_input('CPF', min_value=1, max_value=1_000_000_000_00, value=None)
 
     search = st.button("Buscar")
     st.divider()
     st.caption("Enzo Porto & Rafael Blumm")
 
+# Configura painel central
+aux = f"{search_value}" if option != SEARCH_OPTIONS[BIRTH] and search_value is not None else ''
+st.subheader(f"Resultado: {aux}", divider="gray")
+
 # Resultado da busca
 if search:
     show_results()
 else:
-    st.info(f"Informe um {option if option == 'CPF' else option.lower()} para buscar")
+    st.info(f"Informe um {option if option == SEARCH_OPTIONS[CPF] else option.lower()} para buscar")

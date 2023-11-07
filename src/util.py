@@ -28,5 +28,5 @@ def load_trees() -> None:
         st.session_state[k] = AVLTree()
     for k, v in pd.read_csv(RESOURCES / DATABASE_FILE, sep=CSV_SEPARATOR).iterrows():
         person = Person(v.CPF, v.RG, v.Nome, v.Nascimento, v.Cidade)
-        for i in TREE_KEYS:
-            st.session_state[i].insert(person.cpf, person)
+        st.session_state['tree_cpf'].insert(person.cpf, person)
+        st.session_state['tree_name'].insert(person.name, person)
