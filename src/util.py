@@ -30,3 +30,4 @@ def load_trees() -> None:
         person = Person(v.CPF, v.RG, v.Nome, v.Nascimento, v.Cidade)
         st.session_state['tree_cpf'].insert(person.cpf, person)
         st.session_state['tree_name'].insert(person.name, person)
+        st.session_state['tree_birth'].insert(person.birth, person)

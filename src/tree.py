@@ -1,4 +1,5 @@
 from person import Person
+import datetime
 
 
 class AVLNode:
@@ -72,6 +73,7 @@ class AVLTree:
             return
         return self._search(self.root, key, [])
 
+
     def _search(self, node: AVLNode, key, path: list) -> list | None:
         """
         Procura por um nodo com determinado valor.
@@ -90,13 +92,54 @@ class AVLTree:
             return self._search(node.right, key, path)
         return path
 
+    def search_between(self, key) -> list | None:
+        """
+        Procura por um nodo com determinado valor caso a chave esteja em um intervalo.
+        :param key: Chave do valor desejado.
+        :return: Caminho até o nodo procurado.
+        """
+        if self.root is None or key is None:
+            return
+
+        return self._search_between(self.root, key, [])
+
+    def _search_between(self, node: AVLNode, key, path: list) -> list | None:
+        """
+        Procura por um nodo com determinado valor caso a chave esteja entre um intervalo.
+        :param node: Nodo a ser comparado.
+        :param key: Chave do valor desejado.
+        :param path: Caminho percorrido na árvore.
+        :return: Caminho até o nodo procurado.
+        """
+        path = []
+        stack = []
+
+        node = self.root
+        while node is not None or len(stack) > 0:
+            while node is not None:
+                date = datetime.datetime.strptime(node.key, "%d/%m/%Y").date()
+                if key[0] <= date <= key[1]:
+                    path.append(node)
+
+                stack.append(node)
+                node = node.left
+
+            node = stack.pop()
+            node = node.right
+
+        return path
+
     def search_node(self, key) -> AVLNode | None:
         """
         Procura por determinado nodo.
         :param key: Chave do nodo.
         :return: Nodo encontrado.
         """
-        path = self.search(key)
+        if isinstance(key, list):
+            path = self.search_between(key)
+            return path if path is not None else None
+        else:
+            path = self.search(key)
         return path[-1] if path is not None else None
 
     def _update_height(self, node: AVLNode) -> None:

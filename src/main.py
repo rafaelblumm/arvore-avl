@@ -14,29 +14,32 @@ def show_results():
     """
     Exibe resultados da busca.
     """
-    if option == SEARCH_OPTIONS[BIRTH]:
-        st.error(f"Busca por {option.lower()} ainda não foi implementada!")
-        return
-
     if search_value is None:
         st.error('É necessário informar um valor para a busca!')
         return
-    
+
     result = trees[option].search_node(search_value)
-    if result is None:
+    if result is None or len(result) == 0:
         st.error('Cadastro não encontrado!')
         return
 
-    if not result.value:
+    if not result:
         if option == SEARCH_OPTIONS[CPF]:
             st.error(f"CPF '{search_value}' não encontrado")
         if option == SEARCH_OPTIONS[NAME]:
             st.error(f"Nome '{search_value}' não encontrado")
     else:
         dataframes = []
-        for x in result.value:
-            dataframes.append(pd.DataFrame(data=x.to_dict()))
+        if isinstance(result, list):
+            for item in result:
+                for value in item.value:
+                    dataframes.append(pd.DataFrame(data=value.to_dict()))
+        else:
+            for value in result.value:
+                dataframes.append(pd.DataFrame(data=value.to_dict()))
+
         st.table(pd.concat(dataframes))
+
 
 # Carrega árvores
 if not util.check_if_trees_initialized():
@@ -66,6 +69,7 @@ with st.sidebar:
     elif option == SEARCH_OPTIONS[BIRTH]:
         date_start = st.date_input("Limite inferior", format="DD/MM/YYYY", value=None)
         date_end = st.date_input("Limite superior", format="DD/MM/YYYY", value="today")
+        search_value = [date_start, date_end]
     else:
         search_value = st.number_input('CPF', min_value=1, max_value=1_000_000_000_00, value=None)
 
