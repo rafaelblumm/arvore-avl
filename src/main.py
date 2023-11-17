@@ -17,9 +17,14 @@ def show_results():
     if search_value is None:
         st.error('É necessário informar um valor para a busca!')
         return
+    
+    if option == SEARCH_OPTIONS[BIRTH] and search_value[0] > search_value[1]:
+        st.error('O limite superior deve ser maior que o limite inferior!')
+        return
 
     result = trees[option].search_node(search_value)
-    if result is None or len(result) == 0:
+    # if result is None or len(result) == 0:
+    if result is None:
         st.error('Cadastro não encontrado!')
         return
 
@@ -67,9 +72,10 @@ with st.sidebar:
     if option == SEARCH_OPTIONS[NAME]:
         search_value = st.text_input('Nome', '')
     elif option == SEARCH_OPTIONS[BIRTH]:
-        date_start = st.date_input("Limite inferior", format="DD/MM/YYYY", value=None)
-        date_end = st.date_input("Limite superior", format="DD/MM/YYYY", value="today")
-        search_value = [date_start, date_end]
+        search_value = [
+            st.date_input("Limite inferior", format="DD/MM/YYYY", value=None),
+            st.date_input("Limite superior", format="DD/MM/YYYY", value="today")
+        ]
     else:
         search_value = st.number_input('CPF', min_value=1, max_value=1_000_000_000_00, value=None)
 
