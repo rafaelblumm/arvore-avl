@@ -1,10 +1,14 @@
 CPF;RG;Nome;Nascimento;Cidade
+1;1;Augusto;01/01/2001;Novo Hamburgo
+2;2;Bianca;02/01/2001;Novo Hamburgo
+3;3;Carla;03/01/2001;Porto Alegre
+4;4;Augusto;01/01/2001;Sapucaia
 12345678910;543216;Fulano de Tal;01/02/1958;Porto Alegre
-10987654321;44556601;Cicrana Beltrana Delgrana;25/12/2972;São Leopoldo
+10987654321;44556601;Cicrana Beltrana Delgrana;25/12/1972;São Leopoldo
 12345678900;123456789;João da Silva;01/01/1990;São Paulo
 11111111111;111111111;Pedro da Silva;04/04/1993;Florianópolis
 98765432100;987654321;Maria da Silva;02/02/1991;Rio de Janeiro
-09876543210;98765432;José da Silva;03/03/1992;Belo Horizonte
+9876543210;98765432;José da Silva;03/03/1992;Belo Horizonte
 10987654320;109876543;Ana da Silva;04/04/1993;Salvador
 11098765430;110987654;Pedro da Silva;05/05/1994;Fortaleza
 22222222222;222222222;Pedro da Silva;03/03/1992;Garopaba
