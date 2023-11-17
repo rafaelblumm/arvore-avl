@@ -84,6 +84,8 @@ def show_results():
 
         st.table(pd.concat(dataframes))
 
+if 'option' not in st.session_state:
+    st.session_state['option'] = 'CPF'
 
 # Carrega árvores
 if not util.check_if_trees_initialized():
