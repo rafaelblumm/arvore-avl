@@ -1,4 +1,5 @@
-import datetime
+from datetime import datetime
+import streamlit as st
 
 class Person:
     """
@@ -12,12 +13,12 @@ class Person:
         self.city = city
     
     def __repr__(self) -> str:
-        date = self.birth.strftime("%d/%m/%Y")
-        return  f"NOME: {self.nome}\n" \
-                f"CPF: {self.cpf}\n" \
-                f"RG: {self.rg}\n" \
-                f"NASCIMENTO: {date}" \
-                f"CIDADE: {self.city}"
+        if st.session_state['option'] == 'CPF':
+            return str(self.format_cpf())
+        elif st.session_state['option'] == 'Nome':
+            return self.name
+        else:
+            return self.birth.strftime("%d/%m/%Y")
 
     def to_dict(self) -> dict:
         """
@@ -25,14 +26,14 @@ class Person:
         :return dict
         """
         return {
-            'CPF': [self._format_cpf()],
+            'CPF': [self.format_cpf()],
             'RG': [self._format_rg()],
             'Nome': [self.name],
-            'Nascimento': [self.birth],
+            'Nascimento': [self.birth.strftime("%d/%m/%Y")],
             'Cidade:': [self.city]
         }
     
-    def _format_cpf(self) -> str:
+    def format_cpf(self) -> str:
         """
         Formata CPF no formato '999.999.999-99'.
         """

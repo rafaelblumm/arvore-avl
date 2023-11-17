@@ -117,7 +117,8 @@ class AVLTree:
         node = self.root
         while node is not None or len(stack) > 0:
             while node is not None:
-                date = datetime.datetime.strptime(node.key, "%d/%m/%Y").date()
+                # date = datetime.datetime.strptime(node.key, "%d/%m/%Y").date()
+                date = node.key.date()
                 if key[0] <= date <= key[1]:
                     path.append(node)
 
