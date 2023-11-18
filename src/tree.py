@@ -1,5 +1,5 @@
 from person import Person
-import datetime
+import streamlit as st
 
 
 class AVLNode:
@@ -117,8 +117,31 @@ class AVLTree:
         node = self.root
         while node is not None or len(stack) > 0:
             while node is not None:
-                date = datetime.datetime.strptime(node.key, "%d/%m/%Y").date()
-                if key[0] <= date <= key[1]:
+                if key[0] <= node.key.date() <= key[1]:
+                    path.append(node)
+
+                stack.append(node)
+                node = node.left
+
+            node = stack.pop()
+            node = node.right
+
+        return path
+
+    def search_name(self, key) -> list | None:
+        if self.root is None or key is None:
+            return
+
+        return self._search_name(self.root, key, [])
+    
+    def _search_name(self, node: AVLNode, key, path: list) -> list | None:
+        path = []
+        stack = []
+
+        node = self.root
+        while node is not None or len(stack) > 0:
+            while node is not None:
+                if key in getattr(node.value[0], 'name'):
                     path.append(node)
 
                 stack.append(node)
@@ -138,6 +161,8 @@ class AVLTree:
         if isinstance(key, list):
             path = self.search_between(key)
             return path if path is not None else None
+        elif st.session_state['option'] == 'Nome':
+            return self.search_name(key)
         else:
             path = self.search(key)
         return path[-1] if path is not None else None
